@@ -19,6 +19,14 @@ const postSchema = mongoose.Schema(
       type: String,
       require: true,
     },
+    image: {
+      name: {
+        type: String,
+      },
+      path: {
+        type: String,
+      },
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
@@ -35,6 +43,7 @@ exports.validate = (post) => {
     description: Joi.string().min(10).max(500).required().label("Description"),
     category: Joi.string().required().label("Category"),
     price: Joi.string().required().label("Price"),
+    image: Joi.object(),
   });
 
   return postSchema.validate(post, {

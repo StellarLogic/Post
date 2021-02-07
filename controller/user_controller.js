@@ -66,7 +66,10 @@ exports.signUp = async (req, res, next) => {
       return res.status(StatusCodes.BAD_REQUEST).send({
         status: "Fail",
         code: StatusCodes.BAD_REQUEST,
-        message: error.details.map((error) => error.message),
+        message: error.details.map((error, index) => ({
+          id: index,
+          error: error.message,
+        })),
       });
     const { name, email, password } = req.body;
 
@@ -76,7 +79,7 @@ exports.signUp = async (req, res, next) => {
       return res.status(StatusCodes.BAD_REQUEST).send({
         status: "Fail",
         code: StatusCodes.BAD_REQUEST,
-        message: "User already registered.",
+        message: [{ id: 1, error: "User already registered." }],
       });
 
     user = User({
@@ -92,15 +95,13 @@ exports.signUp = async (req, res, next) => {
 
     const token = user.generateAuthToken();
 
-    return res
-      .header("x-auth-token", token)
-      .status(StatusCodes.OK)
-      .send({
-        status: "Success",
-        code: StatusCodes.OK,
-        data: _.pick(user, ["_id", "name", "email", "createdAt"]),
-        message: "User created.",
-      });
+    return res.status(StatusCodes.OK).send({
+      status: "Success",
+      code: StatusCodes.OK,
+      data: _.pick(user, ["_id", "name", "email", "createdAt"]),
+      token,
+      message: [{ id: 1, value: "Account successfully created." }],
+    });
   } catch (error) {
     console.log(`Error : ${error}`);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({

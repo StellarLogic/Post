@@ -7,7 +7,7 @@ exports.getAllPost = async (req, res, next) => {
   try {
     const post = await Post.find({}, { updatedAt: 0, __v: 0 }).populate(
       "user",
-      ["name"]
+      ["name", "email"]
     );
 
     if (!post.length)
@@ -36,10 +36,10 @@ exports.getAllPost = async (req, res, next) => {
 
 exports.getSinglePost = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id).populate("user", [
-      "name",
-      "email",
-    ]);
+    const post = await Post.findById(req.params.id, {
+      updatedAt: 0,
+      __v: 0,
+    }).populate("user", ["name", "email"]);
 
     if (!post)
       return res.status(StatusCodes.OK).send({
@@ -72,14 +72,14 @@ exports.addPost = async (req, res, next) => {
       return res.status(StatusCodes.BAD_REQUEST).send({
         status: "Fail",
         code: StatusCodes.BAD_REQUEST,
-        message: error.details.map((error) => error.message),
+        message: error.details.map((error, index) => ({
+          id: index,
+          error: error.message,
+        })),
       });
 
     const { title, description, category, price } = req.body;
 
-    const user = await User.findById(req.user._id);
-
-    console.log(_.pick(user, ["name", "_id"]));
     let post = new Post({
       title,
       description,
@@ -87,6 +87,11 @@ exports.addPost = async (req, res, next) => {
       price,
       user: req.user._id,
     });
+
+    if (req.file) {
+      post.image.name = req.file.filename;
+      post.image.path = req.file.path;
+    }
 
     await post.save();
     return res.status(StatusCodes.OK).send({
@@ -99,7 +104,14 @@ exports.addPost = async (req, res, next) => {
         "category",
         "price",
         "createdAt",
+        "image",
       ]),
+      message: [
+        {
+          id: 1,
+          value: "Post successfully created.",
+        },
+      ],
     });
   } catch (error) {
     console.log(`Error : ${error}`);
