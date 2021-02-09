@@ -15,6 +15,12 @@ const profileSchema = mongoose.Schema(
         type: String,
       },
     },
+    address: {
+      street: String,
+      city: String,
+      state: String,
+      zip: Number,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
@@ -30,9 +36,15 @@ exports.validate = (profile) => {
     phone: Joi.string()
       .length(10)
       .pattern(/^[0-9]+$/)
-      .required()
       .label("Phone Number"),
+    street: Joi.string().label("Street"),
+    city: Joi.string().label("City"),
+    state: Joi.string().label("State"),
+    zip: Joi.string().length(6).label("Zip"),
     image: Joi.object(),
+    name: Joi.string(),
+    currentPassword: Joi.string(),
+    newPassword: Joi.string(),
   });
   return profileSchema.validate(profile, {
     abortEarly: false,

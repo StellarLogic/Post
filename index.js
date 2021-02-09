@@ -4,6 +4,8 @@ require("./config/dbConnection")();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const helmet = require("helmet");
+const compression = require("compression");
 
 // middleware
 const app = express();
@@ -11,7 +13,9 @@ app.use("/uploads", express.static("uploads"));
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(cors());
-app.use(cookieParser());
+app.use(helmet);
+app.use(compression);
+
 // routes
 app.use("/api/v1/", require("./routes/index"));
 
