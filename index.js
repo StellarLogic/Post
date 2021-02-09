@@ -13,8 +13,8 @@ app.use("/uploads", express.static("uploads"));
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(cors());
-app.use(helmet);
-app.use(compression);
+app.use(helmet());
+app.use(compression());
 
 // routes
 app.use("/api/v1/", require("./routes/index"));
